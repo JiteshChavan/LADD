@@ -38,17 +38,17 @@ bash sample.sh
 
 
 ### 2. The issue with low NFE inference
-![image-2.png](attachment:image-2.png)
+![alt text](image-1.png)
 
 ### 3. X0 reparametrization of the Flow Field to predict X0 at any given time t
-![image-3.png](attachment:image-3.png)
+![alt text](image-2.png)
 
 ### 4. Adversarial alignment between generative features corresponding to noised(X0) and noised (x0_hat), from a pretrained backbone.
 
 #### Where x0_hat is rendered using a flow field that is only ever trained on discrete time steps [1.0, 0.75, 0.5, 0.25]
 #### Basically align X0 and X0_hat indirectly via adversarial alignment between features from a pretrained backbone, when subjected to sample X0~pt(.|x0) and X0_hat ~ pt(.|x0_hat)
 
-![image-4.png](attachment:image-4.png)
+![alt text](image-3.png)
 
 ### 5. Basically objective ends up some sort of KLD minimization between pt(.|x0) and pt(.|x0_hat)
 upon convergence samples from both the distributions look the same, one is cheaper to evaluate.
