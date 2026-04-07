@@ -1,0 +1,13 @@
+python precompute.py \
+  --images_dir /root/Grace/VideoX-Fun/datasets/8k/imgs \
+  --captions_jsonl /root/Grace/VideoX-Fun/datasets/8k/8k.jsonl \
+  --output_dir /root/Grace/VideoX-Fun/datasets/8k/precomputed_pt \
+  --model_root /root/Grace/VideoX-Fun/models/Z-Image \
+  --device cuda \
+  --vae_dtype bfloat16 \
+  --text_dtype bfloat16 \
+  --save_dtype float16 \
+  --image_size 512 \
+  --batch_size 64 \
+  --debug_max_samples 8000 \
+  --shard_name 8k.pt

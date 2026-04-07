@@ -1,0 +1,13 @@
+python precompute.py \
+  --images_dir /root/Grace/VideoX-Fun/datasets/debug/imgs \
+  --captions_jsonl /root/Grace/VideoX-Fun/datasets/debug/debug200.jsonl \
+  --output_dir /root/Grace/VideoX-Fun/datasets/debug/precomputed_pt \
+  --model_root /root/Grace/VideoX-Fun/models/Z-Image \
+  --device cuda \
+  --vae_dtype bfloat16 \
+  --text_dtype bfloat16 \
+  --save_dtype float16 \
+  --image_size 512 \
+  --batch_size 32 \
+  --debug_max_samples 200 \
+  --shard_name debug200.pt

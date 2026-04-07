@@ -1,0 +1,13 @@
+python precompute.py \
+  --images_dir /root/Grace/data/debug/ \
+  --captions_jsonl /root/Grace/data/debug/debug_50_shard011.jsonl \
+  --output_dir /root/Grace/data/debug/precomputed_pt \
+  --model_root /root/Grace/VideoX-Fun/models/Z-Image \
+  --device cuda \
+  --vae_dtype float16 \
+  --text_dtype float16 \
+  --save_dtype float16 \
+  --image_size 512 \
+  --batch_size 4 \
+  --debug_max_samples 50 \
+  --gc_every 1

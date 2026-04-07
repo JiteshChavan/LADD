@@ -1,0 +1,1 @@
+rsync -avz -e "ssh -p 19771 -i ~/.ssh/id_ed25519" /path/to/local/folder/ root@216.81.151.50:/root/folder/
