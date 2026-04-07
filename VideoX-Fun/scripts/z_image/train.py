@@ -90,6 +90,7 @@ class CondFeatureDiscHead(nn.Module):
         self,
         in_channels=3840,
         cond_dim=3840,
+        # NOTE : Project features downwards to keep heads lightweight
         hidden_channels=512,
         time_hidden_dim=256,
     ):
@@ -123,6 +124,7 @@ class CondFeatureDiscHead(nn.Module):
             nn.SiLU(),
         )
 
+        # NOTE : out put logits
         self.conv_out = nn.Conv2d(
             hidden_channels // 2,
             1,
@@ -139,7 +141,7 @@ class CondFeatureDiscHead(nn.Module):
         returns: [B, num_logits]
         """
         if t.ndim == 1:
-            t = t.unsqueeze(-1)  # [B, 1]
+            t = t.unsqueeze(-1)  # [B, 1] -> [B, time_dime] later
 
         # Force conditioning path to fp32 for stability
         t = t.float()
@@ -225,6 +227,7 @@ def disc_forward_teacher_nograd(x_in, t_in, prompt_embeds, teacher, disc, captio
         )
 
     teacher_maps = [
+        #NOTE: convert to conv friendly BCHW
         tokens_to_image_maps(feat, teacher_aux["x_item_seqlens"]).float()
         for feat in teacher_aux["features"]
     ]
@@ -1247,7 +1250,7 @@ def broadcast_t_like_x(timesteps: torch.Tensor, x: torch.Tensor) -> torch.Tensor
 
 def pool_caption_feats(cap_feats, target_dtype=None, target_device=None):
     """
-    cap_feats: list of [Li, C]
+    cap_feats: list of [Li, C] #NOTE: variable seq len caption embeddings pool then stack!
     returns: [B, C]
     """
     pooled = []
@@ -1477,10 +1480,11 @@ def main():
         vae.eval()
     
 
-    # NOTE: Changes!
-    # Get Transformer
+
+    # -----------------------------------------------------------------------
+    # NOTE: Model creation!
+    # -----------------------------------------------------------------------
     # TODO: Change to fp32 later if required
-    # Get Transformer: keep trainable model in torch.bfloat16
     teacher = ZImageTransformer2DModel.from_pretrained(
         args.pretrained_model_name_or_path,
         subfolder="transformer",
@@ -1552,7 +1556,7 @@ def main():
     print("layer_map:", layer_map)
 
     for s_idx, t_idx in enumerate(layer_map):
-        print(f"copy teacher layer {t_idx} → student layer {s_idx}")
+        print(f"copy teacher layer {t_idx} to student layer {s_idx}")
         student.layers[s_idx].load_state_dict(
             teacher.layers[t_idx].state_dict()
         )
@@ -1573,15 +1577,20 @@ def main():
 
 
 
-    # Freeze vae and text_encoder and set student to trainable
+    # NOTE: Freeze vae and text_encoder and set student to trainable
+    # FOR INFERENCE ONLY WE HAVE ALREADY PRECOMPUTED LATENTS
     vae.requires_grad_(False)
     text_encoder.requires_grad_(False)
+    # INITIALLY SET AS FALSE AND LATER IF WE PASS AN EMPTY LIST FOR TRAINABLE PARAMETERS EVERY PARAMETER IS TRAINABLE
     student.requires_grad_(False)
+    # SAVE VRAM ONLY LOAD DURING INFERENCE
     text_encoder.to("cpu")
     vae.to("cpu")
     teacher.requires_grad_(False)
     teacher.eval()
+
     teacher.to(device=accelerator.device, dtype=weight_dtype)
+    # NOTE: KEEP disc in fp32, small, less capacity
     disc = disc.to(device=accelerator.device, dtype=torch.float32)
     #optimizer_D = torch.optim.AdamW(
     #    disc.parameters(),
@@ -1621,11 +1630,14 @@ def main():
     # A good trainable modules is showed below now.
     # For 3D Patch: trainable_modules = ['ff.net', 'pos_embed', 'attn2', 'proj_out', 'timepositionalencoding', 'h_position', 'w_position']
     # For 2D Patch: trainable_modules = ['ff.net', 'attn2', 'timepositionalencoding', 'h_position', 'w_position']
+
+    # NOTE: SET STUDENT TO TRAIN!
     student.train()
     # NOTE: If no module filters are provided, train everything.
     if not args.trainable_modules and not args.trainable_modules_low_learning_rate:
+        # NOTE: the only branch that matters
         if accelerator.is_main_process:
-            accelerator.print("No trainable_modules filters provided -> training ALL transformer parameters.")
+            accelerator.print("No trainable_modules filters provided hence training ALL transformer parameters.")
         for param in student.parameters():
             param.requires_grad = True
     else:
@@ -1749,6 +1761,7 @@ def main():
         accelerator.register_save_state_pre_hook(save_model_hook)
         accelerator.register_load_state_pre_hook(load_model_hook)
 
+    #NOTE: IMPORTANT FOR PAPER FAITHFUL ADVERSARIAL SUPERVISION
     if args.gradient_checkpointing:
         student.enable_gradient_checkpointing()
         teacher.enable_gradient_checkpointing()
@@ -1853,6 +1866,7 @@ def main():
     #    weight_decay=args.adam_weight_decay,
     #    eps=args.adam_epsilon,
     #)
+    # NOTE: 8bit adam only for student 6B model
     optimizer_D = torch.optim.AdamW(
         disc.parameters(),
         lr=args.disc_lr,
@@ -1867,8 +1881,8 @@ def main():
         args.random_hw_adapt = False
 
 
-    # NOTE: Precomputed dataset
     from torch.utils.data import Subset
+    # NOTE: Precomputed dataset
     train_dataset = ShardedLatentsDataset(
         shard_paths=args.train_data_dir,
         load_into_memory=True,
@@ -1890,8 +1904,8 @@ def main():
         train_dataset,
         batch_size=args.train_batch_size, # batch_size per forward pass per GPU
         shuffle=True,
-        num_workers=args.dataloader_num_workers, # NOTE: WHY WHAT HOW ?
-        collate_fn=collate_precomputed,
+        num_workers=args.dataloader_num_workers, # NOTE: keep 0 for single shard for now, DDP worker contention for single shard causes crashes
+        collate_fn=collate_precomputed, # Collate function returns batch of latent tensors and list of cap embedding tensors
         pin_memory=True,
         persistent_workers=True if args.dataloader_num_workers > 0 else False, # NOTE: WHY WHAT HOW ?
     )
@@ -1904,6 +1918,7 @@ def main():
         args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
         overrode_max_train_steps = True
 
+    # NOTE: we use constant for now
     lr_scheduler = get_scheduler(
         args.lr_scheduler,
         optimizer=optimizer,
@@ -2020,7 +2035,7 @@ def main():
 
 
 
-    # Calculate the index we need】
+    # Calculate the index we need
     idx_sampling = DiscreteSampling(args.train_sampling_steps, uniform_sampling=args.uniform_sampling)
 
     # NOTE: Generator / Disc phase!
@@ -2041,7 +2056,7 @@ def main():
                 assert "latents" in batch
                 assert "cap_feats" in batch
                 assert batch["latents"].ndim == 4
-                assert batch["latents"].shape[1:] == (16, 64, 64) # NOTE: for 512x512
+                assert batch["latents"].shape[1:] == (16, 64, 64) # NOTE: (C, H, W) for 512x512
                 assert isinstance(batch["cap_feats"], list)
                 assert len(batch["cap_feats"]) == batch["latents"].shape[0]
                 assert batch["cap_feats"][0].ndim == 2
@@ -2049,20 +2064,22 @@ def main():
 
             
             # NOTE:  z ~ p_data(.) to device
+            # NOTE: send latents batch to device
             assert "latents" in batch, f"Script currently requires precomputed latents and text embeddings."
             latents = batch["latents"].to(device=accelerator.device, dtype=weight_dtype)
-            latents = latents.unsqueeze(2)  # [B, 16, 1 (time frames), 64, 64] 
+            latents = latents.unsqueeze(2)  # [B, 16, 1 (time frames), 64, 64] NOTE: for shape compliance with z_image backbone forward
             if epoch == first_epoch and step == 0:
                 accelerator.print(
                     f"latents: {latents.shape}, {latents.dtype}, {latents.device}"
                 )
 
-            
+            # NOTE: send prompt embedding batch to device
             assert "cap_feats" in batch, f"Script currently requires precomputed latents and text embeddings."
             prompt_embeds = [
                 x.to(device=accelerator.device, dtype=weight_dtype)
                 for x in batch["cap_feats"]
             ]
+
             # NOTE: verify shapes!
             if epoch == first_epoch and step == 0:
                 accelerator.print(
@@ -2071,7 +2088,10 @@ def main():
             
 
             bsz, channel, f, height, width = latents.size()
+
+            # NOTE: apply VAE latent space scaling
             latents = ((latents - vae.config.shift_factor) * vae.config.scaling_factor).to(dtype=weight_dtype)
+            # NOTE: sample from gaussian, same shape as latents
             eps = torch.randn(latents.size(), device=latents.device, generator=torch_rng, dtype=weight_dtype)
 
             if not args.uniform_sampling:
@@ -2139,6 +2159,8 @@ def main():
                 # NOTE: sample idx of discrete timestep specified by the PDF for time sampling
                 idx = torch.multinomial(probs, num_samples=latents.shape[0], replacement=True)
                 sigmas = t[idx]
+
+                # NOTE: coefficient of X0 (Z)
                 model_t = 1.0 - sigmas
 
             # NOTE: Broadcast t so it matches xt tensor shape                
@@ -2163,10 +2185,7 @@ def main():
                     accelerator.print(f"sigmas[:4] = {sigmas[:4]}")
                 accelerator.print(f"model_t[:4] = {model_t[:4]}")
                 accelerator.print(f"sigmas[:4] = {sigmas.flatten()[:4]}")
-            # NOTE: Evaluate flow field
-            
-
-
+    
             # NOTE: MSE loss for base flow matching objective, useless for distillation
             def custom_mse_loss(u_theta, u_t, weighting=None, threshold=50):
                 u_theta = u_theta.float()
@@ -2180,7 +2199,6 @@ def main():
                 final_loss = masked_loss.mean()
                 return final_loss
 
-            # NOTE: LADD branch
             current_phase = phase
             if args.use_ladd:
                 if phase == "G":
@@ -2188,6 +2206,8 @@ def main():
                         student.train()
                         disc.eval()
 
+                        # NOTE: dont hold backward activations for disc on VRAM
+                        # NOTE: Grads do flow back to the generator
                         for p in disc.parameters():
                             p.requires_grad_(False)
                         
@@ -2199,8 +2219,10 @@ def main():
                             )[0]
 
                             # convert both student and teacher vector fields into clean data representations
-                            x0_student = pred_x0_from_u(noisy_latents, sigma_broadcast, u_student)
+                            x0_student = pred_x0_from_u(noisy_latents, sigma_broadcast, u_student) # x_t + dt * u
+                            # EXAMLPLE : at t = 1 at gaussian x_0 = x_1 + (1-1) * u
 
+                            # NOTE: obsolete later according to the paper
                             recon_loss = F.smooth_l1_loss(
                                 x0_student.float(),
                                 latents.float(),
@@ -2208,12 +2230,14 @@ def main():
                             )
 
                             # NOTE: Convert B,T, C to B, C, H, W so that its compatible with conv net discriminator
+                            
+                            # NOTE: disc needs t/sigma detach from graph first
                             disc_sigmas = sigmas.detach()
                             disc_model_t = model_t.detach()
 
-                            eps_fake_D = torch.randn_like(latents)
                             # NOTE: Noise students x0 prediction and then ask the discriminator if it looks real
                             # BASICALLY USE RENOISED x0_student and ask if it would look the same as renoised realX0
+                            eps_fake_D = torch.randn_like(latents)
                             x_fake_D = add_noise_for_disc(x0_student, eps_fake_D, disc_sigmas)
 
                             pred_fake = disc_forward_teacher_grad(
@@ -2231,21 +2255,18 @@ def main():
 
                             avg_loss = accelerator.gather(loss.repeat(bsz)).mean()
                             train_loss += avg_loss.item() / args.gradient_accumulation_steps
-
-                            optimizer.zero_grad(set_to_none=True)
-                            optimizer_D.zero_grad(set_to_none=True)
-
+                            
                             accelerator.backward(loss)
 
                             if accelerator.sync_gradients:
                                 norm_sum = accelerator.clip_grad_norm_(trainable_params, args.max_grad_norm)
                                 # NOTE : only switch phase in very last micro step
+                                optimizer.step()
+                                lr_scheduler.step()
+                                optimizer.zero_grad(set_to_none=True)
+                                optimizer_D.zero_grad(set_to_none=True)
                                 phase = "D"
 
-                            optimizer.step()
-                            lr_scheduler.step()
-                            optimizer.zero_grad(set_to_none=True)
-                            optimizer_D.zero_grad(set_to_none=True)
 
 
                             if accelerator.sync_gradients:
@@ -2309,13 +2330,13 @@ def main():
                         d_loss, loss_real, loss_fake = discriminator_loss(pred_real, pred_fake)
                         loss = d_loss
 
-                        optimizer.zero_grad(set_to_none=True)
-                        optimizer_D.zero_grad(set_to_none=True)
-
                         accelerator.backward(d_loss)
 
                         if accelerator.sync_gradients:
                             d_grad_norm = accelerator.clip_grad_norm_(disc.parameters(), args.max_grad_norm)
+                            optimizer_D.step()
+                            optimizer_D.zero_grad(set_to_none=True)
+
                             if args.use_ema:
                                 ema_student.step(student.parameters())
                             phase = "G"
@@ -2353,7 +2374,7 @@ def main():
                                     logger.info(f"Saved state to {save_path}")
 
 
-                        optimizer_D.step()
+                        
                         optimizer.zero_grad(set_to_none=True)
                         optimizer_D.zero_grad(set_to_none=True)
 
