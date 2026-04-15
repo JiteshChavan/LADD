@@ -1,5 +1,5 @@
 # Important (Key deliverables):
-- Please follow the [setup instructions](#setup) closely to reproduce workspace layout and results.
+- Please follow the [setup instructions](#setup) closely to reproduce workspace layout and results. Checkpoints and precomputed latent embeddings hosted on Huggingface for faster iteration, network volumens being slow.
 
 - WANDB dashboard for the final run: https://wandb.ai/red-blue-violet/Distillation
 
@@ -157,7 +157,7 @@ This follows the LADD setup where supervision is derived from teacher-generated 
 
     - To make training efficient and match the Z-Image pipeline:
 
-    Images (512×512) are encoded using the SDXL VAE
+    The Generated Images (512×512) are encoded using the SDXL VAE
     (stored as 64×64 latent tensors)
     Text captions are encoded using Qwen3ForCausalLM
     (stored as embeddings (dim = 2560, prompts can have variable sequence length unlike OpenCLIP embeddings))
