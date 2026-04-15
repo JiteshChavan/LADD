@@ -2,7 +2,6 @@
 set -euo pipefail
 
 
-export HF_TOKEN="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"
 REPO_ID="Jchavan010/LaddFinal"
 LOCAL_DIR="/root/Grace/checkpoints"
 
@@ -16,8 +15,6 @@ hf download $REPO_ID \
   --repo-type model \
   --include "checkpoints/checkpoint-5300/*" \
   --local-dir $LOCAL_DIR \
-  --token $HF_TOKEN
-
 
 echo "Download complete. Listing files:"
 find $LOCAL_DIR -maxdepth 2 -type f | sort
