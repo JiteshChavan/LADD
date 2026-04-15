@@ -16,7 +16,7 @@ Gradient Checkpointing + adamw 8bit + both student and teacher in torch.bfloat16
 Which is faithful to the LADD paper, tradeoff is that Gradient checkpointing on both student and teacher cost ~9.5 sec per step.
 
 # Setup:
-
+The paths are hard coded for now, so please make sure to follow the setup instructions.
 ```bash
 mkdir -p /root/Grace
 git clone https://github.com/JiteshChavan/LADD /root/Grace
