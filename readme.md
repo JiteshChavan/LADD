@@ -8,7 +8,7 @@
 - Same with precomputed image latents and text embeddings : https://huggingface.co/datasets/Jchavan010/data
 
 -   Relevant Scripts are here (once you clone the repository as instructed) :
-    - - Debug split overfit run :  /root/Grace/VideoX-Fun/scripts/z_image/smoke.sh 
+    - - 200 samples debug split overfit run :  /root/Grace/VideoX-Fun/scripts/z_image/smoke.sh 
     - - final 8xA100 run : /root/Grace/VideoX-Fun/scripts/z_image/final_run.sh 
     - - inference : /root/Grace/VideoX-Fun/scripts/z_image/sample.sh 
 
@@ -30,7 +30,7 @@ Which is faithful to the LADD paper, tradeoff is that Gradient checkpointing on 
 ---
 
 # Setup:
-The paths are hard coded for now, so please make sure to follow the setup instructions.
+Repro note: scripts assume the /root/Grace workspace layout used in my runs.
 ```bash
 mkdir -p /root/Grace
 git clone https://github.com/JiteshChavan/LADD /root/Grace
@@ -49,17 +49,21 @@ source download_ckpt.sh
 ---
 ### Note that all the runs and inference samples will be logged on the same WANDB dashboard (https://wandb.ai/red-blue-violet/Distillation)
 
-### Start debug training expt on 200 images (Please make sure the virtual env is activated before starting training runs or inference):
+### Please make sure the virtual env is activated before starting training runs or inference:
+
+### Start 200 samples overfit run:
 ```bash
 cd /root/Grace/VideoX-Fun/scripts/z_image
 bash smoke.sh
 ```
-### 8xA100 run
+### Start 8xA100 run as:
 ```bash
+cd /root/Grace/VideoX-Fun/scripts/z_image
 bash final_run.sh
 ```
-### Inference
+### Run Inference as:
 ```bash
+cd /root/Grace/VideoX-Fun/scripts/z_image
 bash sample.sh
 ```
 
