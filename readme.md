@@ -1,19 +1,33 @@
-# Note:
+# Important (Key deliverables):
+- WANDB dashboard for the final run: https://wandb.ai/red-blue-violet/Distillation
 
-WANDB dashboard for the final run:
-https://wandb.ai/red-blue-violet/Distillation
+- The training logs are available at : https://wandb.ai/red-blue-violet/Distillation/runs/4waiy8vi/logs
 
-The training logs are available at :
-https://wandb.ai/red-blue-violet/Distillation/runs/4waiy8vi/logs
+- Since the network volume was slower, model checkpoints for testing inference are available on huggingface: https://huggingface.co/Jchavan010/LaddFinal/tree/main/checkpoints
+
+- Same with precomputed image latents and text embeddings : https://huggingface.co/datasets/Jchavan010/data
+
+-   Relevant Scripts are here (once you clone the repository as instructed) :
+    - - Debug split overfit run :  /root/Grace/VideoX-Fun/scripts/z_image/smoke.sh 
+    - - final 8xA100 run : /root/Grace/VideoX-Fun/scripts/z_image/final_run.sh 
+    - - inference : /root/Grace/VideoX-Fun/scripts/z_image/sample.sh 
 
 
-Since the network volume was slower, model checkpoints for testing inference are available on huggingface:
-https://huggingface.co/Jchavan010/LaddFinal/tree/main/checkpoints
+- Inference CLI command:
+![alt text](image-6.png)
 
+- Final Run CLI command:
+![alt text](image-7.png)
 
-# Important:
+- Debug split overfit run command:
+![alt text](image-5.png)
+
+---
+
+# Also Important:
 Gradient Checkpointing + adamw 8bit + both student and teacher in torch.bfloat16 allow for discriminator feature taps across all 30 layers of the teacher backbone! (Yay!)
 Which is faithful to the LADD paper, tradeoff is that Gradient checkpointing on both student and teacher cost ~9.5 sec per step.
+---
 
 # Setup:
 The paths are hard coded for now, so please make sure to follow the setup instructions.
@@ -33,8 +47,9 @@ source download_debug_split.sh
 source download_ckpt.sh
 ```
 ---
+### Note that all the runs and inference samples will be logged on the same WANDB dashboard (https://wandb.ai/red-blue-violet/Distillation)
+
 ### Start debug training expt on 200 images (Please make sure the virtual env is activated before starting training runs or inference):
-#### Note that all the runs and inference samples will be logged on the same WANDB dashboard (https://wandb.ai/red-blue-violet/Distillation)
 ```bash
 cd /root/Grace/VideoX-Fun/scripts/z_image
 bash smoke.sh
