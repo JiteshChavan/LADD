@@ -13,4 +13,4 @@ python sample.py \
   "purple skin camels in house" \
   --sample_dir /root/Grace/checkpoints/checkpoint-5300/samples \
   --seed 42 \
-  --run_name smoke_ckpt5000_nfe1
+  --run_name sample_4NFE_step_20300
