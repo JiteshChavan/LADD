@@ -33,8 +33,8 @@ source download_debug_split.sh
 source download_ckpt.sh
 ```
 ---
-
-### Start debug training expt on 200 images:
+### Start debug training expt on 200 images (Please make sure the virtual env is activated before starting training runs or inference):
+#### Note that all the runs and inference samples will be logged on the same WANDB dashboard (https://wandb.ai/red-blue-violet/Distillation)
 ```bash
 cd /root/Grace/VideoX-Fun/scripts/z_image
 bash smoke.sh

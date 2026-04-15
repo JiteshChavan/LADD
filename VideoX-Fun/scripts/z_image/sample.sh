@@ -1,7 +1,7 @@
 export WANDB_API_KEY=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
 python sample.py \
   --model_path /root/Grace/VideoX-Fun/models/Z-Image \
-  --ckpt_path /root/Grace/checkpoints/checkpoint-5300 \
+  --ckpt_path /root/Grace/checkpoints/checkpoint-20300 \
   --inference_nfe 4 \
   --sample_prompts "librarian with purple wavy hair, books, pixar, animated" \
   "fluffy koala bear happy" \
