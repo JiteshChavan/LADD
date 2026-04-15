@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-set -euo pipefail
 
 REPO_ID="Jchavan010/LaddFinal"
 LOCAL_DIR="/root/Grace/checkpoints"
