@@ -84,7 +84,7 @@ MAX_SAMPLES = 8  # set to None to use all prompts in the jsonl
 # Generation params
 sample_size = [512, 512]
 batch_size = 64
-weight_dtype = torch.bfloat16  # use torch.float16 if your GPU needs it
+weight_dtype = torch.bfloat16  
 guidance_scale = 4.0
 seed = 43
 num_inference_steps = 40
@@ -179,9 +179,6 @@ pipeline = ZImagePipeline(
     scheduler=scheduler,
 )
 
-# =========================================================
-# OPTIONAL MULTI-GPU / MEMORY MODES
-# =========================================================
 
 if ulysses_degree > 1 or ring_degree > 1:
     from functools import partial

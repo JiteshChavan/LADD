@@ -1,4 +1,6 @@
 # Important (Key deliverables):
+- Please follow the [setup instructions](#setup) closely to reproduce workspace layout and results.
+
 - WANDB dashboard for the final run: https://wandb.ai/red-blue-violet/Distillation
 
 - The training logs are available at : https://wandb.ai/red-blue-violet/Distillation/runs/4waiy8vi/logs
@@ -8,10 +10,15 @@
 - Same with precomputed image latents and text embeddings : https://huggingface.co/datasets/Jchavan010/data
 
 -   Relevant Scripts are here (once you clone the repository as instructed) :
-    - - 200 samples debug split overfit run :  /root/Grace/VideoX-Fun/scripts/z_image/smoke.sh 
+    - - 200 samples debug split overfit run to test that forward pass is functioning, gradients are flowing properly, and that model can overfit 200 images quickly (the run will be logged on the WANDB dashboard):  /root/Grace/VideoX-Fun/scripts/z_image/smoke.sh 
     - - final 8xA100 run : /root/Grace/VideoX-Fun/scripts/z_image/final_run.sh 
     - - inference : /root/Grace/VideoX-Fun/scripts/z_image/sample.sh 
 
+- Note that --use_ladd flag enables or disables distillation training, if absent the script falls back to base flow matching training.
+
+
+- Qualitative comparison between inference samples from a distilled student and teacher both evaluated at 4 step generations (4-NFE), significantly better structure and fine grained details can be observed in 4 step samples from the distilled student model as opposed to the 4 step samples from teacher model which happen to be blurry and lack detail like the student samples. Hence corroborating the fact that distillation has been successful.
+![alt text](image-8.png)
 
 - Inference CLI command:
 ![alt text](image-6.png)
@@ -139,6 +146,8 @@ To support LADD distillation, I constructed a dataset that matches the Z-Image t
     - Sampled a subset of prompts from JourneyDB
     - Generated corresponding images using the teacher model (40 NFE)
     - Total dataset size: ~8k image-text pairs
+    - The script /root/Grace/generate.py generates images using the teacher model for training.
+    - The script /root/Grace/VideoX-Fun/datasets/8k/precompute.sh which is an entry point into precompute.py precomputes VAE latents for the images and text embeddings from Qwen3ForCausalLM.
 
 This follows the LADD setup where supervision is derived from teacher-generated samples rather than raw data.
 
