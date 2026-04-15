@@ -2,7 +2,6 @@
 set -euo pipefail
 
 
-export HF_TOKEN="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"
 REPO_ID="Jchavan010/zimage-debug-latents"
 LOCAL_DIR="/root/Grace/VideoX-Fun/datasets/debug/precomputed_pt"
 
