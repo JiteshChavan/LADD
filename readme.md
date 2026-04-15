@@ -1,3 +1,20 @@
+# Note:
+
+WANDB dashboard for the final run:
+https://wandb.ai/red-blue-violet/Distillation
+
+The training logs are available at :
+https://wandb.ai/red-blue-violet/Distillation/runs/4waiy8vi/logs
+
+
+Since the network volume was slower, model checkpoints for testing inference are available on huggingface:
+https://huggingface.co/Jchavan010/LaddFinal/tree/main/checkpoints
+
+
+# Important:
+Gradient Checkpointing + adamw 8bit + both student and teacher in torch.bfloat16 allow for discriminator feature taps across all 30 layers of the teacher backbone! (Yay!)
+Which is faithful to the LADD paper, tradeoff is that Gradient checkpointing on both student and teacher cost ~9.5 sec per step.
+
 # Setup:
 
 ```bash
@@ -113,7 +130,7 @@ This follows the LADD setup where supervision is derived from teacher-generated 
     Images (512×512) are encoded using the SDXL VAE
     (stored as 64×64 latent tensors)
     Text captions are encoded using Qwen3ForCausalLM
-    (stored as embeddings (dim = 2560, variable sequence length))
+    (stored as embeddings (dim = 2560, prompts can have variable sequence length unlike OpenCLIP embeddings))
 
 All data is stored as precomputed shards on disk to avoid repeated encoding during training.
 
@@ -125,7 +142,7 @@ Each training sample contains:
 - corresponding text embedding
 
 4. Debug vs Full Dataset
-    - Debug split (50–200 samples)
+    - Debug split (200 samples)
     - - Used for fast iteration, overfitting tests, and verifying training stability
     - Full 8k dataset
     - - Used for multi-GPU training
