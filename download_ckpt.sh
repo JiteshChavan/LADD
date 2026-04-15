@@ -11,7 +11,7 @@ echo "Downloading ckpt into $LOCAL_DIR ..."
 
 hf download "$REPO_ID" \
   --repo-type model \
-  --include "checkpoints/checkpoint-5300/*" \
+  --include "checkpoints/checkpoint-20300/*" \
   --local-dir "$LOCAL_DIR"
 
 echo "Download complete. Listing files:"
