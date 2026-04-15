@@ -17,7 +17,7 @@
 - Note that --use_ladd flag enables or disables distillation training, if absent the script falls back to base flow matching training.
 
 
-- Qualitative comparison between inference samples from a distilled student and teacher both evaluated at 4 step generations (4-NFE), significantly better structure and fine grained details can be observed in 4 step samples from the distilled student model as opposed to the 4 step samples from teacher model which happen to be blurry and lack detail like the student samples. Hence corroborating the fact that distillation has been successful.
+- Qualitative comparison between inference samples from a distilled student (left) and teacher (right) both evaluated at 4 step generations (4-NFE), significantly better structure and fine grained details can be observed in 4 step samples from the distilled student model as opposed to the 4 step samples from teacher model which happen to be blurry and lack detail like the student samples. Hence corroborating the fact that distillation has been successful.
 ![alt text](image-8.png)
 
 - Inference CLI command:
