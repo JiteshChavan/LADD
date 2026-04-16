@@ -1,5 +1,5 @@
 # Important observation:
-See [Why I did not use a reduced-depth student that is smaller than teacher to save memory](#notes-on-reduced-depth-student-reducing-depth-of-the-student-to-save-memory)
+See [Why I did not use a reduced-depth student that is smaller than teacher to save memory (other than the fact that its not faithful to the LADD paper)](#notes-on-reduced-depth-student-reducing-depth-of-the-student-to-save-memory)
 
 # Important (Key deliverables):
 - Please follow the [setup instructions](#setup) closely to reproduce workspace layout and results. Checkpoints and precomputed latent embeddings hosted on Huggingface for faster iteration, network volumens being slow.
