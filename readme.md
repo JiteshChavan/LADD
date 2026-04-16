@@ -176,8 +176,8 @@ upon convergence samples from both the distributions look the same, one is cheap
         - Fool the discriminator.
     - Discriminator loss:
         - $d_{\text{loss}} = loss_{\text{real}} + loss_{\text{real}}$
-            - $loss_{\text{real}} = \text{Binary Cross Entropy} (\text{concatenated logits}~(X_{0})~\forall~\text{30 discriminator heads}, ones)$
-            - $loss_{\text{fake}} = \text{Binary Cross Entropy} (\text{concatenated logits}(X_{0})~\forall~\text{30 discriminator heads}, zeros)$
+            - $loss_{\text{real}} = \text{Binary Cross Entropy} (\text{concatenated logits}~(X_{0})\quad\forall\quad\text{30 discriminator heads}, ones)$
+            - $loss_{\text{fake}} = \text{Binary Cross Entropy} (\text{concatenated logits}(X_{0})\quad\forall\quad\text{30 discriminator heads}, zeros)$
             - Discriminator is incentivized to separate logits for reals and fakes.
 - Reconstruction Loss (distill_loss):
     - Regresses $x^{`}_{0}$ from student against $x_{0} \sim p_{\text{data}}$
