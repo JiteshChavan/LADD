@@ -125,7 +125,7 @@ upon convergence samples from both the distributions look the same, one is cheap
     - Observed drawback: partial init student does not have the correct flow field internalized.
     - Because such student doesnt know the flow field (since its not the same function as the teacher), its learning reconstructions from adversarial dynamics
     - As observed first 2100 steps of the training is spent trying to learn colors and texture soup whereas student initialized from teacher yields visibly structured samples as early as step 50.
-    - as good as random init with no baseline starting representation of flow field, so harder task to learn.
+    - No baseline starting representation of flow field, so harder task to learn by just adversarial dynamics.
     - init from teacher starts giving really good visuals as early as step 50 in training while sparse init smaller student struggles even with correct colors till step ~2000 and even beyond at same training setup, as evident from trying an 8 layer student, to save memory, instead of 30 layer student like the teacher model.
 ---
 
