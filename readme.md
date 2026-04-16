@@ -1,3 +1,6 @@
+# Important observation:
+See [Why I did not use a reduced-depth student that is smaller than teacher to save memory](#notes-on-reduced-depth-student-reducing-depth-of-the-student-to-save-memory)
+
 # Important (Key deliverables):
 - Please follow the [setup instructions](#setup) closely to reproduce workspace layout and results. Checkpoints and precomputed latent embeddings hosted on Huggingface for faster iteration, network volumens being slow.
 
@@ -113,14 +116,18 @@ upon convergence samples from both the distributions look the same, one is cheap
     - Another possible solution to not require gradient checkpointing on teacher, is to not tap all the 30 layers from teacher for adversarial dynamic and just tap first few layers and do early exit.
     - although that deviates from the paper, I have implemented the framework to early exit during forward pass of teacher.
     - That weakens the adversarial supervision from discriminators though.
-    
+
+---
+## Notes on Reduced depth student (reducing depth of the student to save memory)
+# Important this approach is not faithful to the LADD paper, and yields worse/suboptimal convergence empirically
 3. Another solution to increase through put is:
     - cut student size down, and initialize student from teacher but in a sparse interpolated way say teacher [0, 29]-> student [0, 5]
     - Observed drawback: partial init student does not have the correct flow field internalized.
     - Because such student doesnt know the flow field, its learning reconstructions purely from adversarial dynamics
     - most of the training is spent trying to learn colors and texture soup.
     - as good as random init with no baseline starting representation of flow field, so harder task to learn.
-    - init from teacher starts giving really good visuals as early as step 200 in training while random or sparse init smaller student struggles even with correct colors till step ~2000 and even beyond at same training setup.
+    - init from teacher starts giving really good visuals as early as step 50 in training while sparse init smaller student struggles even with correct colors till step ~2000 and even beyond at same training setup, as evident from trying an 8 layer student, to save memory, instead of 30 layer student like the teacher model.
+---
 
 4. Z_image transformer backbone runs self attention on concat(image, text) tokens just like flux kontext .1
     - Important to keep resolution -> latent size -> img_tok_seq len in mind to tap into the features from teacher, and reshape them for conv nets backbone for disc loss.
