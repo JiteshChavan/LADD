@@ -1,5 +1,10 @@
 **This implementation is intentionally faithful to the LADD paper, avoiding architectural or training deviations in favor of a clean, reproducible reproduction of the original method.**
 
+Specifically:
+- Student initialized directly from the teacher
+- Discriminator heads applied across all transformer blocks of the frozen teacher backbone (30 for z-image model)
+- Multi-step distillation with discrete timesteps $[1.0, 0.75, 0.5, 0.25]$ following the annealed schedule described in the LADD paper ([arXiv:2403.12015](https://arxiv.org/pdf/2403.12015))
+
 # 4 Step samples from distilled student after 20.3k training steps:
 ![4 step inference](./assets/4step_student.png)
 Prompts:
