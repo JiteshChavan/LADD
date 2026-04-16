@@ -168,7 +168,7 @@ upon convergence samples from both the distributions look the same, one is cheap
 - *Inputs to the discriminator heads* : 
     - Z-image backbone runs unified attention over concatenated image-text embeddings.
     - The forward pass of ```ZImageTransformer2DModel``` is modified to capture concatenated activations after every transformer block (Refer forward in ```VideoX-Fun/videox-fun/models/z_image_transformer2d.py```)
-    - The activations $(B, img-len+cap-len, 3840)$ tensors are first sliced to extract only the vision part of the stream then reshaped to be processed by the conv net discriminators to yield logits.
+    - The activations $(B, \text{img_len}+\text{cap_len}, 3840)$ tensors are first sliced to extract only the vision part of the stream then reshaped to be processed by the conv net discriminators to yield logits.
         - ![alt text](image-8.png)
 - Adversarial loss:
     - Generator loss: $\text{Binary Cross Entropy} (\text{concatenated logits}~(X^{`}_{0})~\forall~\text{30 discriminator heads}, ones)$
@@ -176,8 +176,8 @@ upon convergence samples from both the distributions look the same, one is cheap
         - Fool the discriminator.
     - Discriminator loss:
         - $d_{\text{loss}} = loss_{\text{real}} + loss_{\text{real}}$
-            - $ loss_{\text{real}} = \text{Binary Cross Entropy} (\text{concatenated logits}~(X_{0})~\forall~\text{30 discriminator heads}, ones)$
-            - $ loss_{\text{fake}} = \text{Binary Cross Entropy} (\text{concatenated logits}(X_{0})~\forall~\text{30 discriminator heads}, zeros)$
+            - $loss_{\text{real}} = \text{Binary Cross Entropy} (\text{concatenated logits}~(X_{0})~\forall~\text{30 discriminator heads}, ones)$
+            - $loss_{\text{fake}} = \text{Binary Cross Entropy} (\text{concatenated logits}(X_{0})~\forall~\text{30 discriminator heads}, zeros)$
             - Discriminator is incentivized to separate logits for reals and fakes.
 - Reconstruction Loss (distill_loss):
     - Regresses $x^{`}_{0}$ from student against $x_{0} \sim p_{\text{data}}$
