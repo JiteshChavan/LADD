@@ -1,3 +1,5 @@
+**This implementation is intentionally faithful to the LADD paper, avoiding architectural or training deviations in favor of a clean, reproducible reproduction of the original method.**
+
 # 4 Step samples from distilled student after 20.3k training steps:
 ![4 step inference](./assets/4step_student.png)
 Prompts:
@@ -77,16 +79,23 @@ source download_ckpt.sh
 ### Please make sure the virtual env is activated before starting training runs or inference:
 
 ### Start 200 samples overfit run:
+*Debug script: Starts Overfit expt on 200 images, makes sure checkpointing, forward pass and backward gradient flow is working and overfits 200 debug images.*
+*Logs the exp to wandb*
 ```bash
 cd /root/Grace/VideoX-Fun/scripts/z_image
 bash smoke.sh
 ```
+
 ### Start 8xA100 run as:
+*Starts final training run across 8xA100s*
+*Logs the exp to wandb*
 ```bash
 cd /root/Grace/VideoX-Fun/scripts/z_image
 bash final_run.sh
 ```
 ### Run Inference as:
+*Runs 4 step inference using distilled student checkpoints uploaded on huggingface.*
+*logs samples to wandb*
 ```bash
 cd /root/Grace/VideoX-Fun/scripts/z_image
 bash sample.sh
@@ -153,10 +162,33 @@ upon convergence samples from both the distributions look the same, one is cheap
 
 6. Offline precomputation of Latents before starting training runs helps with the VRAM disaster.
 
-
-
+---
+# 3. Notes on training and adversarial supervison:
+- *Discriminators* : Simple conv net discriminator heads across all 30 transformer layers of the pre-trained teacher model, as advised in the LADD paper.
+- *Inputs to the discriminator heads* : 
+    - Z-image backbone runs unified attention over concatenated image-text embeddings.
+    - The forward pass of ZImageTransformer2DModel is modified to capture concatenated activations after every transformer block (Refer forward in VideoX-Fun/videox-fun/models/z_image_transformer2d.py)
+    - The activations $(B, img_len+cap_len, 3840)$ tensors are first sliced to extract only the vision part of the stream then reshaped to be processed by the conv net discriminators to yield logits.
+        - ![alt text](image-8.png)
+- Adversarial loss:
+    - Generator loss: $\text{Binary Cross Entropy} (\text{concatenated logits}(X^{`}_{0}) \forall 30 discriminator heads, ones)$
+        - Incentivize teacher activations corresponding to $X^{`}_{0}$ prediction from generator to look as if they are similar to those corresponding to synthetic $X_{0} \sim p_{\text{data}}$
+        - Fool the discriminator.
+    - Discriminator loss:
+        - $d_{\text{loss}} = loss_{\text{real}} + loss_{\text{real}}$
+            - $ loss_{\text{real}} = Binary Cross Entropy (\text{concatenated logits}(X_{0}) \text{\forall 30 discriminator heads}, ones)$
+            - $ loss_{\text{fake}} = Binary Cross Entropy (\text{concatenated logits}(X_{0}) \text{\forall 30 discriminator heads}, zeros)$
+            - Discriminator is incentivized to separate logits for reals and fakes.
+- Reconstruction Loss (distill_loss):
+    - Regresses $x^{`}_{0}$ from student against $x_{0} \sim p_{\text{data}}$
+- Total Generator Loss = recon_loss + Generator Loss
+- Time step sampling:
+    - Discrete time steps $\in [1.0, 0.75, 0.5, 0.25]$ are sampled according to the annealing schedule defined in the paper.
+        - ![alt text](image-9.png)
+    - Discriminators are also conditioned on the discrete time steps using simple additive modulation from ```nn.Sequential(nn.Linear(1, t_hidden_dim), nn.Silu(), nn.Linear(t_hiiden_dim, hidden_channels))``` (refer CondFeatureDiscHead class in VideoX-Fun/scrips/z_image/train.py)
+- Training alternates between updating Generator and then Discriminator at each step. On wandb dashboard one step corresponds to one generator and one discriminator update.
 --- 
-# 3. Data Pipeline
+# 4. Data Pipeline
 
 The paper emphasizes using sythetic data for adversarial alignment between vectorfields u and u_hat at x_t sampled from conditional distributions $p(.| X0)$ and $p(.|X0_hat)$.
 
