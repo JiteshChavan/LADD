@@ -167,17 +167,17 @@ upon convergence samples from both the distributions look the same, one is cheap
 - *Discriminators* : Simple conv net discriminator heads across all 30 transformer layers of the pre-trained teacher model, as advised in the LADD paper.
 - *Inputs to the discriminator heads* : 
     - Z-image backbone runs unified attention over concatenated image-text embeddings.
-    - The forward pass of ZImageTransformer2DModel is modified to capture concatenated activations after every transformer block (Refer forward in VideoX-Fun/videox-fun/models/z_image_transformer2d.py)
-    - The activations $(B, img_len+cap_len, 3840)$ tensors are first sliced to extract only the vision part of the stream then reshaped to be processed by the conv net discriminators to yield logits.
+    - The forward pass of ```ZImageTransformer2DModel``` is modified to capture concatenated activations after every transformer block (Refer forward in ```VideoX-Fun/videox-fun/models/z_image_transformer2d.py```)
+    - The activations $(B, img-len+cap-len, 3840)$ tensors are first sliced to extract only the vision part of the stream then reshaped to be processed by the conv net discriminators to yield logits.
         - ![alt text](image-8.png)
 - Adversarial loss:
-    - Generator loss: $\text{Binary Cross Entropy} (\text{concatenated logits}(X^{`}_{0}) \forall 30 discriminator heads, ones)$
+    - Generator loss: $\text{Binary Cross Entropy} (\text{concatenated logits}~(X^{`}_{0})~\forall~\text{30 discriminator heads}, ones)$
         - Incentivize teacher activations corresponding to $X^{`}_{0}$ prediction from generator to look as if they are similar to those corresponding to synthetic $X_{0} \sim p_{\text{data}}$
         - Fool the discriminator.
     - Discriminator loss:
         - $d_{\text{loss}} = loss_{\text{real}} + loss_{\text{real}}$
-            - $ loss_{\text{real}} = Binary Cross Entropy (\text{concatenated logits}(X_{0}) \text{\forall 30 discriminator heads}, ones)$
-            - $ loss_{\text{fake}} = Binary Cross Entropy (\text{concatenated logits}(X_{0}) \text{\forall 30 discriminator heads}, zeros)$
+            - $ loss_{\text{real}} = \text{Binary Cross Entropy} (\text{concatenated logits}~(X_{0})~\forall~\text{30 discriminator heads}, ones)$
+            - $ loss_{\text{fake}} = \text{Binary Cross Entropy} (\text{concatenated logits}(X_{0})~\forall~\text{30 discriminator heads}, zeros)$
             - Discriminator is incentivized to separate logits for reals and fakes.
 - Reconstruction Loss (distill_loss):
     - Regresses $x^{`}_{0}$ from student against $x_{0} \sim p_{\text{data}}$
