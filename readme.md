@@ -8,6 +8,7 @@ Specifically:
 # 4 Step samples from distilled student after 20.3k training steps:
 ![4 step inference](./assets/4step_student.png)
 Prompts:
+- *librarian with purple wavy hair, books, pixar, animated*
 - *fluffy koala bear happy*
 - *blue bird with rocket engines realistic*
 - *the empress tarot card painted in the style of Hilda af klint*
