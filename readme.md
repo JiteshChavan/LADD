@@ -1,5 +1,5 @@
 # Important observation:
-See [Why I did not use a reduced-depth student that is smaller than teacher to save memory (other than the fact that its not faithful to the LADD paper)](#notes-on-reduced-depth-student-reducing-depth-of-the-student-to-save-memory)
+See [Why I did not use a reduced-depth student that is smaller than teacher to save memory and decided to stay faithful to LADD paper at the cost of slower steps with gradient checkpointing](#notes-on-reduced-depth-student-reducing-depth-of-the-student-to-save-memory)
 
 # Important (Key deliverables):
 - Please follow the [setup instructions](#setup) closely to reproduce workspace layout and results. Checkpoints and precomputed latent embeddings hosted on Huggingface for faster iteration, network volumens being slow.
@@ -122,10 +122,10 @@ upon convergence samples from both the distributions look the same, one is cheap
 # Important this approach is not faithful to the LADD paper, and yields worse/suboptimal convergence empirically
 3. Another solution to increase through put is:
     - cut student size down, and initialize student from teacher but in a sparse interpolated way say teacher [0, 29]-> student [0, 5]
-    - Observed drawback: partial init student does not have the correct flow field internalized.
-    - Because such student doesnt know the flow field (since its not the same function as the teacher), its learning reconstructions from adversarial dynamics
-    - As observed first 2100 steps of the training is spent trying to learn colors and texture soup whereas student initialized from teacher yields visibly structured samples as early as step 50.
-    - No baseline starting representation of flow field, so harder task to learn by just adversarial dynamics.
+    - Observed drawback: partial init appears to have a weaker initial representation of the flow dynamics (imperfect flow matching vectorfield).
+    - Because such student doesnt know the exact flow field (since does not directly preserve the teacher’s learned representation), its learning reconstructions from adversarial dynamics
+    - As observed first 2100 steps of the training is spent trying to learn colors whereas student initialized from teacher yields visibly structured samples and correct colors as early as step 50.
+    - Baseline starting representation of flow field is not as good as teacher init, so harder task to learn by just adversarial dynamics.
     - init from teacher starts giving really good visuals as early as step 50 in training while sparse init smaller student struggles even with correct colors till step ~2000 and even beyond at same training setup, as evident from trying an 8 layer student, to save memory, instead of 30 layer student like the teacher model.
 ---
 
