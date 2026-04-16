@@ -34,10 +34,8 @@ See [Why I did not use a reduced-depth student that is smaller than teacher to s
 - ```--resume_from_checkpoint latest``` resumes the training from the latest checkpoint available for that experiment.
 
 
-- Qualitative comparison between inference samples from a distilled student (left) and teacher (right) both evaluated at 4 step generations (4-NFE), significantly better structure and fine grained details can be observed in 4 step samples from the distilled student model as opposed to the 4 step samples from teacher model which happen to be blurry and lack detail like the student samples. Hence corroborating the fact that distillation has been successful.
-| 4-step Student (20.3k train steps) | 4-step Teacher |
-| ---------------------------------- | -------------- |
-| <img src="./assets/student.png" width="100%"> | <img src="./assets/teacher.png" width="100%"> |
+- Qualitative comparison between inference samples from a distilled student (left 20.3k steps) and teacher (right) both evaluated at 4 step generations (4-NFE), significantly better structure and fine grained details can be observed in 4 step samples from the distilled student model as opposed to the 4 step samples from teacher model which happen to be blurry and lack detail like the student samples. Hence corroborating the fact that distillation has been successful.
+![alt text](image-5.png)
 
 
 - Inference CLI command:
