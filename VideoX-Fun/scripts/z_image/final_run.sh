@@ -2,9 +2,9 @@ export WANDB_API_KEY=wandb_v1_2K6xW73asPTlsQFHGJD3UueaNtZ_6Me7kavS9dNaldB76cKsOq
 accelerate launch --num_processes 8 --mixed_precision bf16 train.py \
   --gradient_checkpointing \
   \
+  --use_ladd \
   --teacher_init \
   --use_8bit_adam \
-  --use_ladd \
   --use_adv \
   --adv_weight 1.0 \
   --disc_lr 1e-5 \

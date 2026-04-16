@@ -3,6 +3,8 @@ accelerate launch --num_processes 1 --mixed_precision bf16 train.py \
   --gradient_checkpointing \
   \
   --use_ladd \
+  --teacher_init \
+  --use_8bit_adam \
   --use_adv \
   --adv_weight 1.0 \
   --disc_lr 1e-5 \

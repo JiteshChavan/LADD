@@ -1,3 +1,15 @@
+# 4 Step samples from distilled student after 20.3k training steps:
+![4 step inference](./assets/4step_student.png)
+Prompts:
+- *fluffy koala bear happy*
+- *blue bird with rocket engines realistic*
+- *the empress tarot card painted in the style of Hilda af klint*
+- *crater lake shore lane, wide angle lens, overlook*
+- *starfield, deep sky, realistic, 8k*
+- *distant orbital spaceship science station*
+- *purple skin camels in house*
+
+---
 # Important observation:
 See [Why I did not use a reduced-depth student that is smaller than teacher to save memory and decided to stay faithful to LADD paper at the cost of slower steps with gradient checkpointing](#notes-on-reduced-depth-student-reducing-depth-of-the-student-to-save-memory)
 
@@ -23,7 +35,9 @@ See [Why I did not use a reduced-depth student that is smaller than teacher to s
 
 
 - Qualitative comparison between inference samples from a distilled student (left) and teacher (right) both evaluated at 4 step generations (4-NFE), significantly better structure and fine grained details can be observed in 4 step samples from the distilled student model as opposed to the 4 step samples from teacher model which happen to be blurry and lack detail like the student samples. Hence corroborating the fact that distillation has been successful.
-![alt text](image-8.png)
+| 4step Student (20.3k train steps)| 4step Teacher |
+|--------|--------|
+| ![student_20.3k](./assets/student.png) | ![teacher_20.3k](./assets/teacher.png) |
 
 - Inference CLI command:
 ![alt text](image-6.png)
@@ -32,7 +46,7 @@ See [Why I did not use a reduced-depth student that is smaller than teacher to s
 ![alt text](image-7.png)
 
 - Debug split overfit run command:
-![alt text](image-5.png)
+![smoke_test](./assets/smoke.png)
 
 ---
 
