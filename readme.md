@@ -177,12 +177,12 @@ upon convergence samples from both the distributions look the same, one is cheap
         - ![alt text](image-8.png)
 - Adversarial loss:
     - Generator loss: $\text{Binary Cross Entropy} (\text{concatenated logits}~(X^{`}_{0})~\forall~\text{30 discriminator heads}, ones)$
-        - Incentivize teacher activations corresponding to $X^{`}_{0}$ prediction from generator to look as if they are similar to those corresponding to synthetic $X_{0} \sim p_{\text{data}}$
+        - Incentivize teacher activations corresponding to $X_{\text{0-fake}}$ prediction from generator to look as if they are similar to those corresponding to synthetic $X_{\text{0-real}} \sim p_{\text{data}}$
         - Fool the discriminator.
     - Discriminator loss:
         - $d_{\text{loss}} = loss_{\text{real}} + loss_{\text{real}}$
-            - $loss_{\text{real}} = \text{Binary Cross Entropy} (\text{concatenated logits}~(X_{0})\quad\forall\quad\text{30 discriminator heads}, ones)$
-            - $loss_{\text{fake}} = \text{Binary Cross Entropy} (\text{concatenated logits}(X_{0})\quad\forall\quad\text{30 discriminator heads}, zeros)$
+            - $loss_{\text{real}} = \text{Binary Cross Entropy} (\text{concatenated logits}~(X_{\text{0-real}})\quad\forall\quad\text{30 discriminator heads}, ones)$
+            - $loss_{\text{fake}} = \text{Binary Cross Entropy} (\text{concatenated logits}(X_{\text{0-fake}})\quad\forall\quad\text{30 discriminator heads}, zeros)$
             - Discriminator is incentivized to separate logits for reals and fakes.
 - Reconstruction Loss (distill_loss):
     - Regresses $x^{`}_{0}$ from student against $x_{0} \sim p_{\text{data}}$
