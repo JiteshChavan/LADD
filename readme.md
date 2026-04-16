@@ -123,8 +123,8 @@ upon convergence samples from both the distributions look the same, one is cheap
 3. Another solution to increase through put is:
     - cut student size down, and initialize student from teacher but in a sparse interpolated way say teacher [0, 29]-> student [0, 5]
     - Observed drawback: partial init student does not have the correct flow field internalized.
-    - Because such student doesnt know the flow field, its learning reconstructions purely from adversarial dynamics
-    - most of the training is spent trying to learn colors and texture soup.
+    - Because such student doesnt know the flow field (since its not the same function as the teacher), its learning reconstructions from adversarial dynamics
+    - As observed first 2100 steps of the training is spent trying to learn colors and texture soup whereas student initialized from teacher yields visibly structured samples as early as step 50.
     - as good as random init with no baseline starting representation of flow field, so harder task to learn.
     - init from teacher starts giving really good visuals as early as step 50 in training while sparse init smaller student struggles even with correct colors till step ~2000 and even beyond at same training setup, as evident from trying an 8 layer student, to save memory, instead of 30 layer student like the teacher model.
 ---
