@@ -1,3 +1,6 @@
+- Requires around 80G container disk attached to the runpod instance, as I have hosted data shards/checkpoints on HuggingFace instead of network volume (as the network volume was slower)
+- Please fowllow the [setup instructions](#setup) closely to reproduce workspace layout and results.
+
 **This implementation is intentionally faithful to the LADD paper, avoiding architectural or training deviations in favor of a clean, reproducible reproduction of the original method.**
 
 Specifically:
