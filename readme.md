@@ -177,7 +177,7 @@ upon convergence samples from both the distributions look the same, one is cheap
     - The activations $(B, \text{img-len}+\text{cap-len}, 3840)$ tensors are first sliced to extract only the vision part of the stream then reshaped to be processed by the conv net discriminators to yield logits.
         - ![alt text](image-8.png)
 - Adversarial loss:
-    - Generator loss: $\text{Binary Cross Entropy} (\text{concatenated logits}~(X^{`}_{0})~\forall~\text{30 discriminator heads}, ones)$
+    - Generator loss: $\text{Binary Cross Entropy} (\text{concatenated logits}~(X^{`}_{0})\quad\forall\quad\text{30 discriminator heads}, ones)$
         - Incentivize teacher activations corresponding to $X_{\text{0-fake}}$ prediction from generator to look as if they are similar to those corresponding to synthetic $X_{\text{0-real}} \sim p_{\text{data}}$
         - Fool the discriminator.
     - Discriminator loss:
